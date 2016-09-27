@@ -1,0 +1,108 @@
+# Amol Shah | z1723133 | CSCI 330 | Assignment 5 | 03/30/16
+#!/bin/bash
+echo "#ARGS: $#"
+
+
+#Based on number of arguments creates new database
+if [ $2 == 'new' ]; then		 
+	if [ ! -e "$1" ]; then
+
+#Uses argument as databases header line
+		if [ $# -eq 3 ]; then 
+			touch $1
+			echo $3 > $1
+			echo New database created
+
+#Uses default header if one is not provided
+		elif [ $# -eq 2 ]; then
+			echo Automobile Database > $1
+			echo New database created with default header
+
+#Displays error if incorrect arguments
+		else
+			echo Incorrect arguments, if using multiple words for enclose them in quotes
+		fi
+
+#Displays error if database already exists
+	else
+		echo Database already exists
+	fi
+
+#Adds a single record to database
+elif [[ $2 == 'add' ]]; then
+
+#Checks for existence, readability, and writability of database file
+	if [[ -e "$1" && -r "$1" && -w "$1" ]]; then
+		if [ $# -eq 6 ]; then
+
+#Checks for valid year range 
+			if [[ $5 -gt 1870 && $5 -lt 2020 ]]; then
+				echo $3, $4, $5, $6 >> $1 
+				echo Successfully added a record to the database.
+
+#Displays error if year range argument is out of range			
+			else
+				echo Valid model years are from 1871 to 2019
+				echo You entered $5 
+			fi
+
+#Displays error if the number of arguments are incorrect
+		else
+			echo Incorrect number of arguments. Usage: add make model year color
+		fi
+
+#Displays error if database file does not exist, is unreadable, or unwritable
+	else
+		echo Database does not exist or can not be read or written to.
+	fi
+
+#Shows a single, all, or range of records from database 
+elif [ $2 == 'show' ]; then
+
+	if [[ -e $1 && -r $1 ]]; then 
+#Shows all records in database
+	if [ $# -eq 3 ]; then
+		cat $1
+
+#Shows a single record from database
+	elif [ $# -eq 4 ]; then
+		sed -n $4p < $1 
+
+#Shows a range of records from database
+	elif [[ $# -eq 5 && $4 -lt $5 ]]; then
+		cat $1 | sed -n 1p
+		sed -n $4,$5p < $1
+
+#Displays error if incorrect number of arguments
+	else
+		echo Incorrect usage, usage: show all show single x etc.
+	fi
+	else
+		echo File does not exist or is unreadable
+	fi
+
+#Deletes a single, all, or range of records from database
+elif [ $2 == 'delete' ]; then
+
+#Deletes all records except header in database
+	if [[ $# -eq 3 && $3 == 'all' ]]; then 
+		echo Deleting all lines except header 
+		cat $1 | sed -n 1p > temp
+		mv temp $1
+
+#Deletes single record from database
+	elif [ $# -eq 4 ]; then
+		cat $1 | sed -e "$4"'d' > temp
+		mv temp $1
+		echo 1 record deleted
+
+#Displays error if incorrect number of arguments
+	else
+		echo Incorrect Delete arguments
+	fi
+else 
+ 	echo END******************************** 
+fi
+else
+	echo database dooes no exist
+fi
